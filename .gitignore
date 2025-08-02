@@ -1,0 +1,81 @@
+# 実行結果
+result/
+results/
+output/
+outputs/
+
+# 環境固有ファイル
+.env
+.env.*
+*.env
+
+# APIキー・シークレット
+*api_key*
+*secret*
+*token*
+*.key
+*.pem
+
+# MCP設定
+mcp-*.json
+.claude/
+
+# GitHub Actions ワークフロー（実行ファイル）
+*.yml
+*.yaml
+
+# 個人データ
+personal/
+private/
+*.personal
+*.private
+
+# システムファイル
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.temp
+*.cache
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# バックアップ
+*.bak
+*.backup
+*.old
+
+# 圧縮ファイル
+*.zip
+*.tar
+*.gz
+*.rar
+
+# 動画・音声の大容量ファイル（サンプル以外）
+*.mp4
+*.avi
+*.mov
+*.mp3
+*.wav
+!assets/sample-*/*
+!docs/sample/*
