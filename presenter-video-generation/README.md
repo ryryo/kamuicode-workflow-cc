@@ -94,7 +94,7 @@ TOPIC="製品デモ" CONTENT="新機能のデモンストレーションを行�
 
 ## 🤝 クレジット
 
-このワークフローは [kamuicode Workflows](https://github.com/[original-repo]) プロジェクトをベースに開発されました。
+このワークフローは [kamuicode Workflows](https://github.com/khomma/kamuicode-workflow) プロジェクトをベースに開発されました。
 
 ## 📄 ライセンス
 

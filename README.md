@@ -1,6 +1,6 @@
 # kamuicode Workflows - Public Components
 
-[kamuicode Workflows](https://github.com/[original-repo])をベースにカスタマイズしたワークフローコンポーネント集です。
+[kamuicode Workflows](https://github.com/khomma/kamuicode-workflow)をベースにカスタマイズしたワークフローコンポーネント集です。
 
 ## 概要
 
@@ -36,7 +36,7 @@
 
 このプロジェクトはMITライセンスで公開されています。
 
-ベースプロジェクト [kamuicode Workflows](https://github.com/[original-repo]) は以下のライセンスの下で公開されています：
+ベースプロジェクト [kamuicode Workflows](https://github.com/khomma/kamuicode-workflow) は以下のライセンスの下で公開されています：
 
 ```
 MIT License
