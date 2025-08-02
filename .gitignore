@@ -3,16 +3,16 @@ CONTRIBUTING.md
 REPOSITORY_MANAGEMENT.md
 .gitignore-private
 
-# 実行結果
-result/
-results/
-output/
-outputs/
+# 実行結果（フォルダ自体とREADME.md、デモ出力は残す）
+result/*
+!result/README.md
+!result/presenter/20250802-145045/
 
-# 環境固有ファイル
+# 環境固有ファイル（exampleファイルは除く）
 .env
 .env.*
 *.env
+!.env.example
 
 # APIキー・シークレット
 *api_key*
@@ -21,9 +21,9 @@ outputs/
 *.key
 *.pem
 
-# MCP設定
-mcp-*.json
-.claude/
+# MCP設定（exampleファイルは除く）
+.claude/mcp-*.json
+!.claude/mcp-*.example.json
 
 # GitHub Actions ワークフロー（実行ファイル）
 *.yml

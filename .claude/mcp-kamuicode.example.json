@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+      "video-analysis-google-gemini": {},
+      "t2i-fal-imagen4-fast": {},
+      "t2i-fal-imagen4-ultra": {},
+      "t2m-google-lyria": {},
+      "r2v-fal-vidu-q1": {},
+      "i2v-fal-hailuo-02-pro": {},
+      "i2i-fal-flux-kontext-max": {},
+      "v2v-fal-creatify-lipsync": {},
+      "v2v-fal-pixverse-lipsync": {},
+      "t2s-fal-minimax-speech-02-turbo": {},
+      "i2v-fal-bytedance-omnihuman": {}
+  }
+}

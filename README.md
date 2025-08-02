@@ -6,15 +6,14 @@
 
 このリポジトリは、AI技術を活用した各種コンテンツ生成ワークフローの公開コンポーネントを含んでいます。プロンプトテンプレート、ドキュメント、サンプルスクリプトなど、再利用可能なコンポーネントを提供します。
 
+## 🎥 デモページ
+
+**[→ Live Demo](./demo/index.html)** - プレゼンター動画生成ワークフローの実際の成果物をご覧いただけます。
+
 ## 公開コンポーネント
 
-### 🎬 [Presenter Video Generation](./presenter-video-generation/)
+### 🎬 [Presenter Video Generation](./workflow/presenter-video-generation/)
 プレゼンター動画を自動生成するワークフロー。7種類の話し手タイプに対応し、リップシンクや字幕生成機能を含みます。
-
-### 今後追加予定
-- News Video Generation
-- Banner Advertisement Creation
-- Music Video Workflow
 
 ## 必要な環境
 
@@ -24,9 +23,10 @@
 - Python 3.x
 - その他、各ワークフロー固有の要件
 
-## 使用方法
+## 🚀 クイックスタート
 
-各ワークフローのディレクトリにある README.md を参照してください。
+1. **初期設定**: [SETUP.md](./SETUP.md) を参照してAPIキーとMCP設定を行う
+2. **ワークフロー選択**: 各ワークフローのディレクトリにある README.md を参照
 
 ## 貢献について
 
