@@ -25,10 +25,6 @@ result/*
 .claude/mcp-*.json
 !.claude/mcp-*.example.json
 
-# GitHub Actions ワークフロー（実行ファイル）
-*.yml
-*.yaml
-
 # 個人データ
 personal/
 private/
@@ -75,12 +71,3 @@ yarn-error.log*
 *.tar
 *.gz
 *.rar
-
-# 動画・音声の大容量ファイル（サンプル以外）
-*.mp4
-*.avi
-*.mov
-*.mp3
-*.wav
-!assets/sample-*/*
-!docs/sample/*
