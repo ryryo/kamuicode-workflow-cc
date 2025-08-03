@@ -8,7 +8,7 @@
 
 ## 🎥 デモページ
 
-**[→ Live Demo](./demo/index.html)** - プレゼンター動画生成ワークフローの実際の成果物をご覧いただけます。
+**[→ Live Demo](https://ryryo.github.io/kamuicode-workflow-cc/demo/index.html)** - プレゼンター動画生成ワークフローの実際の成果物をご覧いただけます。
 
 ## 公開コンポーネント
 
