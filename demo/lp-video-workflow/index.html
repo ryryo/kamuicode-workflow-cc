@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kamuicode Workflows - LP用複数動画生成ワークフロー Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../shared/css/common.css" rel="stylesheet">
+    <style>
+        .step-card {
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        .step-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+        }
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        .beaf-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .beaf-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .benefit-badge { background: #e3f2fd; color: #1976d2; }
+        .evidence-badge { background: #e8f5e8; color: #388e3c; }
+        .advantage-badge { background: #fff3e0; color: #f57c00; }
+        .feature-badge { background: #f3e5f5; color: #7b1fa2; }
+        .cta-badge { background: #ffebee; color: #c62828; }
+        
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .media-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .media-preview {
+            width: 100%;
+            aspect-ratio: 9/16;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .focus-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: #e9ecef;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+        .workflow-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        .flow-step {
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+            margin: 0.5rem;
+        }
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin: 0 1rem;
+        }
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .character-card {
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .character-img {
+            width: 100%;
+            aspect-ratio: 9/16;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        .character-img.square {
+            aspect-ratio: 1/1;
+        }
+        
+        /* スマートフォンフレーム */
+        .phone-frame {
+            width: 280px;
+            height: 560px;
+            background: #2c3e50;
+            border-radius: 30px;
+            padding: 20px 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: #34495e;
+            border-radius: 2px;
+        }
+        
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .video-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .phone-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .phone-video.active {
+            opacity: 1;
+        }
+        
+        .video-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .indicator.active {
+            background: #fff;
+        }
+        
+        .video-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .video-list-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-bottom: 5px;
+        }
+        
+        .video-list-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .video-list-item.active {
+            background: #e3f2fd;
+            border-left: 3px solid #1976d2;
+        }
+        
+        .video-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .video-list-item.active .video-number {
+            background: #1976d2;
+        }
+        
+        .video-info h6 {
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .video-info small {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダーセクション -->
+    <header class="bg-gradient-primary text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="display-4 mb-3">LP用複数動画生成ワークフロー</h1>
+                    <h2 class="h3 mb-4">BEAFフレームワーク × AI動画生成</h2>
+                    <p class="lead">ランディングページに最適化された10本の動画セットを体系的に生成</p>
+                    <a href="../" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-arrow-left me-2"></i>デモ一覧に戻る
+                    </a>
+                    <a href="https://github.com/ryryo/kamuicode-workflow-cc" class="btn btn-outline-light btn-lg">
+                        <i class="fab fa-github me-2"></i>GitHub Repository
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ワークフロー概要 -->
+    <section class="container my-5">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h3 class="section-title">ワークフロー概要</h3>
+                <p class="text-muted">BEAFフレームワークに基づいて、LP用の動画セット10本を体系的に生成</p>
+            </div>
+        </div>
+        
+        <div class="workflow-flow">
+            <div class="flow-step">
+                <div class="demo-icon text-primary mb-2">
+                    <i class="fas fa-cog fa-2x"></i>
+                </div>
+                <h5>Step 0: Setup</h5>
+                <p class="text-muted">初期設定・下準備</p>
+            </div>
+            <div class="flow-arrow d-none d-md-block">→</div>
+            
+            <div class="flow-step">
+                <div class="demo-icon text-success mb-2">
+                    <i class="fas fa-lightbulb fa-2x"></i>
+                </div>
+                <h5>Step 1: Planning</h5>
+                <p class="text-muted">
+                    LP企画</p>
+            </div>
+            <div class="flow-arrow d-none d-md-block">→</div>
+            
+            <div class="flow-step">
+                <div class="demo-icon text-warning mb-2">
+                    <i class="fas fa-user-circle fa-2x"></i>
+                </div>
+                <h5>Step 2: Models</h5>
+                <p class="text-muted">モデル作成</p>
+            </div>
+            <div class="flow-arrow d-none d-md-block">→</div>
+            
+            <div class="flow-step">
+                <div class="demo-icon text-info mb-2">
+                    <i class="fas fa-images fa-2x"></i>
+                </div>
+                <h5>Step 3: Images</h5>
+                <p class="text-muted">画像生成</p>
+            </div>
+            <div class="flow-arrow d-none d-md-block">→</div>
+            
+            <div class="flow-step">
+                <div class="demo-icon text-danger mb-2">
+                    <i class="fas fa-video fa-2x"></i>
+                </div>
+                <h5>Step 4: Videos</h5>
+                <p class="text-muted">動画生成</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 0: 初期設定 -->
+    <section class="container my-5">
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-number">0</span>
+                <h4 class="d-inline">初期設定・下準備</h4>
+            </div>
+            <div class="card-body p-4">
+                <h5>設定パラメータ</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bg-light p-3 rounded mb-3">
+                            <h6>必須パラメータ</h6>
+                            <code>THEME="猫耳ワイヤレスゲーミングヘッドホン"</code>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-light p-3 rounded mb-3">
+                            <h6>任意パラメータ</h6>
+                            <code>TARGET_AUDIENCE="10-20代のゲーマー"</code><br>
+                            <code>character_appearance="20代の女性プロゲーマー"</code><br>
+                            <code>STYLE="マンガ"</code><br>
+                            <code>ASPECT_RATIO="9:16"</code>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted">環境変数の設定、出力ディレクトリの作成、パラメータの初期化を行います。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 1: LP企画 -->
+    <section class="container my-5">
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-number">1</span>
+                <h4 class="d-inline">LP企画</h4>
+            </div>
+            <div class="card-body p-4">
+                <h5>生成された企画書類</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-file-alt me-2"></i>全体計画</h6>
+                                <p class="card-text text-muted">10本の動画の統合計画とBEAFフレームワークの適用戦略</p>
+                                <small class="text-muted">beaf-structure-plan.md</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-lightbulb me-2"></i>LP全体コンセプト</h6>
+                                <p class="card-text text-muted">「勝利と可愛さの両立 - ゲーマー女子の新スタンダード」</p>
+                                <small class="text-muted">ad-concept.md</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-user me-2"></i>キャラクター生成プロンプト</h6>
+                                <p class="card-text text-muted">統一キャラクター作成用の英語プロンプト</p>
+                                <small class="text-muted">character-design-prompt-en.txt</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-headphones me-2"></i>商品画像生成プロンプト</h6>
+                                <p class="card-text text-muted">ゲーミングヘッドホン画像作成用プロンプト</p>
+                                <small class="text-muted">product-image-prompt-en.txt</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 2: モデル作成 -->
+    <section class="container my-5">
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-number">2</span>
+                <h4 class="d-inline">モデル作成</h4>
+            </div>
+            <div class="card-body p-4 py-6">
+                <h5>キャラクターバリエーション</h5>
+                <div class="character-grid">
+                    <div class="character-card">
+                        <img src="assets/step2-models/base-character.png" alt="ベースキャラクター" class="character-img">
+                        <h6>ベース</h6>
+                        <small class="text-muted">正面全身 9:16</small>
+                    </div>
+                    <div class="character-card">
+                        <img src="assets/step2-models/character-back.png" alt="背面キャラクター" class="character-img">
+                        <h6>背面</h6>
+                        <small class="text-muted">背面全身 9:16</small>
+                    </div>
+                </div>
+                <div class="character-grid">
+                    <div class="character-card">
+                        <img src="assets/step2-models/character-happy.png" alt="笑顔キャラクター" class="character-img square">
+                        <h6>笑顔</h6>
+                        <small class="text-muted">顔アップ 1:1</small>
+                    </div>
+                    <div class="character-card">
+                        <img src="assets/step2-models/character-neutral.png" alt="普通キャラクター" class="character-img square">
+                        <h6>普通</h6>
+                        <small class="text-muted">顔アップ 1:1</small>
+                    </div>
+                    <div class="character-card">
+                        <img src="assets/step2-models/character-worried.png" alt="悩みキャラクター" class="character-img square">
+                        <h6>悩み</h6>
+                        <small class="text-muted">顔アップ 1:1</small>
+                    </div>
+                    <div class="character-card">
+                        <img src="assets/step2-models/character-surprised.png" alt="驚きキャラクター" class="character-img square">
+                        <h6>驚き</h6>
+                        <small class="text-muted">顔アップ 1:1</small>
+                    </div>
+                </div>
+                
+                <h5 class="mt-4">商品画像</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="character-card">
+                            <img src="assets/step2-models/product-main.png" alt="メイン商品画像" class="character-img square">
+                            <h6>メイン商品</h6>
+                            <small class="text-muted">正面ビュー 1:1</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="character-card">
+                            <img src="assets/step2-models/product-sub.png" alt="サブ商品画像" class="character-img square">
+                            <h6>サブ商品</h6>
+                            <small class="text-muted">側面ビュー 1:1</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <h5 class="mt-4">統合キャラクターシート <span class="badge bg-primary ms-2">I2I参照用</span></h5>
+                <div class="mb-3">
+                    <img src="assets/step2-models/character-sheet.png" alt="統合キャラクターシート" class="img-fluid rounded shadow" style="width: 100%; aspect-ratio: 16/9; object-fit: cover;">
+                </div>
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>I2I生成での重要な役割</h6>
+                    <p class="mb-2">この統合キャラクターシートは、Step 3以降の全ての画像生成で<strong>参照画像として使用</strong>されます：</p>
+                    <ul class="mb-0">
+                        <li><strong>一貫性の保持</strong>: 10本の動画すべてで同じキャラクターデザインを維持</li>
+                        <li><strong>表情・ポーズの多様性</strong>: 6種類の表情・ポーズから適切なものを参照</li>
+                        <li><strong>商品の統一</strong>: 同じヘッドホンデザインを全動画で使用</li>
+                        <li><strong>FLUX Kontext (I2I)</strong>により、このシートを基に新しい構図・シーンを生成</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-3 p-3 bg-light rounded">
+                    <p><strong>使用技術:</strong> Imagen4 Ultra (T2I) + FLUX Kontext (I2I)</p>
+                    <p class="mb-0"><strong>統合キャラクターシート:</strong> 全8枚の画像を統合し、I2I生成用の参照シートとして使用</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 3: 画像生成 -->
+    <section class="container my-5">
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-number">3</span>
+                <h4 class="d-inline">画像生成（10枚）</h4>
+            </div>
+            <div class="card-body p-4">
+                <!-- Benefit Section -->
+                <div class="beaf-section">
+                    <span class="beaf-badge benefit-badge">Benefit - 価値提供</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <img src="assets/step3-images/01_benefit/img-01.png" alt="Benefit人物フォーカス" class="media-preview">
+                            <h6>動画01: 勝利への変化</h6>
+                            <span class="focus-tag">人物フォーカス</span>
+                            <p class="text-muted">勝利体験と満足感を視覚化</p>
+                        </div>
+                        <div class="media-item">
+                            <img src="assets/step3-images/01_benefit/img-02.png" alt="Benefit商品フォーカス" class="media-preview">
+                            <h6>動画02: 即座の効果</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">装着した瞬間から差が出る</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Evidence Section -->
+                <div class="beaf-section">
+                    <span class="beaf-badge evidence-badge">Evidence - 根拠・証拠</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <img src="assets/step3-images/02_evidence/img-03.png" alt="Evidence商品フォーカス" class="media-preview">
+                            <h6>動画03: 品質の証明</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">プロも認める高品質</p>
+                        </div>
+                        <div class="media-item">
+                            <img src="assets/step3-images/02_evidence/img-04.png" alt="Evidence人物フォーカス" class="media-preview">
+                            <h6>動画04: 満足の声</h6>
+                            <span class="focus-tag">人物フォーカス</span>
+                            <p class="text-muted">多くのゲーマーが選んでいる</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advantage Section -->
+                <div class="beaf-section">
+                    <span class="beaf-badge advantage-badge">Advantage - 優位性</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <img src="assets/step3-images/03_advantage/img-05.png" alt="Advantage商品フォーカス" class="media-preview">
+                            <h6>動画05: 比較優位</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">なぜこのヘッドホンなのか</p>
+                        </div>
+                        <div class="media-item">
+                            <img src="assets/step3-images/03_advantage/img-06.png" alt="Advantage風景フォーカス" class="media-preview">
+                            <h6>動画06: ブランド世界観</h6>
+                            <span class="focus-tag">風景フォーカス</span>
+                            <p class="text-muted">ゲーミングブランドの価値観</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Feature Section -->
+                <div class="beaf-section">
+                    <span class="beaf-badge feature-badge">Feature - 機能詳細</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <img src="assets/step3-images/04_feature/img-07.png" alt="Feature商品フォーカス" class="media-preview">
+                            <h6>動画07: 機能デモ</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">高度な機能を分かりやすく</p>
+                        </div>
+                        <div class="media-item">
+                            <img src="assets/step3-images/04_feature/img-08.png" alt="Feature人物フォーカス" class="media-preview">
+                            <h6>動画08: 使用体験</h6>
+                            <span class="focus-tag">人物フォーカス</span>
+                            <p class="text-muted">実際の使用体験で利便性を実証</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CTA Section -->
+                <div class="beaf-section">
+                    <span class="beaf-badge cta-badge">CTA - 行動喚起</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <img src="assets/step3-images/05_cta/img-09.png" alt="CTA人物フォーカス" class="media-preview">
+                            <h6>動画09: 購入決断</h6>
+                            <span class="focus-tag">人物フォーカス</span>
+                            <p class="text-muted">購入への感情的動機を最大化</p>
+                        </div>
+                        <div class="media-item">
+                            <img src="assets/step3-images/05_cta/img-10.png" alt="CTA商品フォーカス" class="media-preview">
+                            <h6>動画10: 限定オファー</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">限定性で最終的な行動を促進</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-light rounded">
+                    <p><strong>使用技術:</strong> FLUX Kontext (I2I) - 統合キャラクターシートを参照</p>
+                    <p class="mb-0"><strong>生成方式:</strong> 各media-XX-plan.mdの画像生成プロンプトを使用してI2I生成</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 4: 動画生成 -->
+    <section class="container my-5">
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-number">4</span>
+                <h4 class="d-inline">動画生成（10本）</h4>
+            </div>
+            <div class="card-body p-4">
+                <!-- Benefit Videos -->
+                <div class="beaf-section">
+                    <span class="beaf-badge benefit-badge">Benefit - 価値提供</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/01_benefit/img-01.png">
+                                <source src="assets/step4-videos/01_benefit/video-01.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画01: 勝利への変化</h6>
+                            <span class="focus-tag">人物フォーカス</span>
+                            <p class="text-muted">5秒ループ - 勝利体験の感情表現</p>
+                        </div>
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/01_benefit/img-02.png">
+                                <source src="assets/step4-videos/01_benefit/video-02.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画02: 即座の効果</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">5秒ループ - 商品使用による効果</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Evidence Videos -->
+                <div class="beaf-section">
+                    <span class="beaf-badge evidence-badge">Evidence - 根拠・証拠</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/02_evidence/img-03.png">
+                                <source src="assets/step4-videos/02_evidence/video-03.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画03: 品質の証明</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">5秒ループ - 技術的優位性の視覚化</p>
+                        </div>
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/02_evidence/img-04.png">
+                                <source src="assets/step4-videos/02_evidence/video-04.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画04: 満足の声</h6>
+                            <span class="focus-tag">人物フォーカス</span>
+                            <p class="text-muted">5秒ループ - 使用者の満足度表現</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advantage Videos -->
+                <div class="beaf-section">
+                    <span class="beaf-badge advantage-badge">Advantage - 優位性</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/03_advantage/img-05.png">
+                                <source src="assets/step4-videos/03_advantage/video-05.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画05: 比較優位</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">5秒ループ - 他製品との差別化</p>
+                        </div>
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/03_advantage/img-06.png">
+                                <source src="assets/step4-videos/03_advantage/video-06.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画06: ブランド世界観</h6>
+                            <span class="focus-tag">風景フォーカス</span>
+                            <p class="text-muted">5秒ループ - ブランド価値観の表現</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Feature Videos -->
+                <div class="beaf-section">
+                    <span class="beaf-badge feature-badge">Feature - 機能詳細</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/04_feature/img-07.png">
+                                <source src="assets/step4-videos/04_feature/video-07.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画07: 機能デモ</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">5秒ループ - 機能詳細の解説</p>
+                        </div>
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/04_feature/img-08.png">
+                                <source src="assets/step4-videos/04_feature/video-08.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画08: 使用体験</h6>
+                            <span class="focus-tag">人物フォーカス</span>
+                            <p class="text-muted">5秒ループ - 使いやすさの実証</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CTA Videos -->
+                <div class="beaf-section">
+                    <span class="beaf-badge cta-badge">CTA - 行動喚起</span>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/05_cta/img-09.png">
+                                <source src="assets/step4-videos/05_cta/video-09.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画09: 購入決断</h6>
+                            <span class="focus-tag">人物フォーカス</span>
+                            <p class="text-muted">5秒ループ - 購入決断の瞬間</p>
+                        </div>
+                        <div class="media-item">
+                            <video controls class="media-preview" poster="assets/step3-images/05_cta/img-10.png">
+                                <source src="assets/step4-videos/05_cta/video-10.mp4" type="video/mp4">
+                            </video>
+                            <h6>動画10: 限定オファー</h6>
+                            <span class="focus-tag">商品フォーカス</span>
+                            <p class="text-muted">5秒ループ - 限定性の強調</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-light rounded">
+                    <p><strong>使用技術:</strong> Hailuo-02 Pro (I2V)</p>
+                    <p><strong>動画仕様:</strong> 5秒・ループ再生設計・LP配置最適化</p>
+                    <p class="mb-0"><strong>生成方式:</strong> Step3の静止画から各media-XX-plan.mdの動画生成プロンプトを使用</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 5: 文字入り動画（スマートフォン表示） -->
+    <section class="container my-5">
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-number">5</span>
+                <h4 class="d-inline">文字入り動画（スマートフォン表示）</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>縦型動画プレビュー <span class="badge bg-success ms-2">スマートフォン全画面対応</span></h5>
+                        <p class="text-muted mb-4">
+                            9:16の縦型動画として制作された、スマートフォン全画面表示用の文字入り動画です。
+                            各動画をスナップスクロールで切り替えてご覧ください。
+                        </p>
+                        
+                        <!-- スマートフォンフレーム -->
+                        <div class="phone-frame mx-auto">
+                            <div class="phone-screen">
+                                <div class="video-container" id="phoneVideoContainer">
+                                    <video class="phone-video active" autoplay muted loop playsinline>
+                                        <source src="assets/step4-videos/video_00.mp4" type="video/mp4">
+                                    </video>
+                                    <video class="phone-video" autoplay muted loop playsinline>
+                                        <source src="assets/step4-videos/video_01.mp4" type="video/mp4">
+                                    </video>
+                                    <video class="phone-video" autoplay muted loop playsinline>
+                                        <source src="assets/step4-videos/video_02.mp4" type="video/mp4">
+                                    </video>
+                                    <video class="phone-video" autoplay muted loop playsinline>
+                                        <source src="assets/step4-videos/video_03.mp4" type="video/mp4">
+                                    </video>
+                                    <video class="phone-video" autoplay muted loop playsinline>
+                                        <source src="assets/step4-videos/video_04.mp4" type="video/mp4">
+                                    </video>
+                                    <video class="phone-video" autoplay muted loop playsinline>
+                                        <source src="assets/step4-videos/video_05.mp4" type="video/mp4">
+                                    </video>
+                                    <video class="phone-video" autoplay muted loop playsinline>
+                                        <source src="assets/step4-videos/video_06.mp4" type="video/mp4">
+                                    </video>
+                                    <video class="phone-video" autoplay muted loop playsinline>
+                                        <source src="assets/step4-videos/video_07.mp4" type="video/mp4">
+                                    </video>
+                                    <video class="phone-video" autoplay muted loop playsinline>
+                                        <source src="assets/step4-videos/video_08.mp4" type="video/mp4">
+                                    </video>
+                                </div>
+                                
+                                <!-- 動画インジケーター -->
+                                <div class="video-indicators">
+                                    <span class="indicator active" data-video="0"></span>
+                                    <span class="indicator" data-video="1"></span>
+                                    <span class="indicator" data-video="2"></span>
+                                    <span class="indicator" data-video="3"></span>
+                                    <span class="indicator" data-video="4"></span>
+                                    <span class="indicator" data-video="5"></span>
+                                    <span class="indicator" data-video="6"></span>
+                                    <span class="indicator" data-video="7"></span>
+                                    <span class="indicator" data-video="8"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <h5>動画一覧</h5>
+                        <div class="video-list">
+                            <div class="video-list-item active" data-video="0">
+                                <span class="video-number">00</span>
+                                <div class="video-info">
+                                    <h6>イントロダクション</h6>
+                                    <small class="text-muted">オープニング映像</small>
+                                </div>
+                            </div>
+                            <div class="video-list-item" data-video="1">
+                                <span class="video-number">01</span>
+                                <div class="video-info">
+                                    <h6>Benefit - 人物フォーカス</h6>
+                                    <small class="text-muted">勝利への変化</small>
+                                </div>
+                            </div>
+                            <div class="video-list-item" data-video="2">
+                                <span class="video-number">02</span>
+                                <div class="video-info">
+                                    <h6>Benefit - 商品フォーカス</h6>
+                                    <small class="text-muted">即座の効果</small>
+                                </div>
+                            </div>
+                            <div class="video-list-item" data-video="3">
+                                <span class="video-number">03</span>
+                                <div class="video-info">
+                                    <h6>Evidence - 商品フォーカス</h6>
+                                    <small class="text-muted">品質の証明</small>
+                                </div>
+                            </div>
+                            <div class="video-list-item" data-video="4">
+                                <span class="video-number">04</span>
+                                <div class="video-info">
+                                    <h6>Evidence - 人物フォーカス</h6>
+                                    <small class="text-muted">満足の声</small>
+                                </div>
+                            </div>
+                            <div class="video-list-item" data-video="5">
+                                <span class="video-number">05</span>
+                                <div class="video-info">
+                                    <h6>Advantage - 商品フォーカス</h6>
+                                    <small class="text-muted">比較優位</small>
+                                </div>
+                            </div>
+                            <div class="video-list-item" data-video="6">
+                                <span class="video-number">06</span>
+                                <div class="video-info">
+                                    <h6>Advantage - 風景フォーカス</h6>
+                                    <small class="text-muted">ブランド世界観</small>
+                                </div>
+                            </div>
+                            <div class="video-list-item" data-video="7">
+                                <span class="video-number">07</span>
+                                <div class="video-info">
+                                    <h6>Feature - 商品フォーカス</h6>
+                                    <small class="text-muted">機能デモ</small>
+                                </div>
+                            </div>
+                            <div class="video-list-item" data-video="8">
+                                <span class="video-number">08</span>
+                                <div class="video-info">
+                                    <h6>Feature - 人物フォーカス</h6>
+                                    <small class="text-muted">使用体験</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6><i class="fas fa-mobile-alt me-2"></i>スマートフォン最適化</h6>
+                            <ul class="mb-0 small">
+                                <li>9:16の縦型動画で全画面表示</li>
+                                <li>文字・テキストを大きく読みやすく配置</li>
+                                <li>スナップスクロールで直感的な操作</li>
+                                <li>ループ再生で訴求力を最大化</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技術スタックセクション -->
+    <section class="tech-stack-section py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-4">
+                    <h3 class="section-title">使用技術スタック</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="tech-item text-center">
+                        <h5>AI Platform</h5>
+                        <p>Claude Code<br>MCP Tools</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="tech-item text-center">
+                        <h5>Image Generation</h5>
+                        <p>Imagen4 Ultra<br>FLUX Kontext</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="tech-item text-center">
+                        <h5>Video Generation</h5>
+                        <p>Hailuo-02 Pro</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="tech-item text-center">
+                        <h5>Framework</h5>
+                        <p>BEAFフレームワーク<br>LP最適化設計</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特徴セクション -->
+    <section class="container my-5">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h3 class="section-title">ワークフローの特徴</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="feature-item text-center">
+                    <div class="feature-icon text-primary mb-3">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                    <h5>BEAFフレームワーク</h5>
+                    <p class="text-muted">LP構成に最適化された体系的な動画セット生成</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-item text-center">
+                    <div class="feature-icon text-success mb-3">
+                        <i class="fas fa-sync-alt fa-2x"></i>
+                    </div>
+                    <h5>統一感のある表現</h5>
+                    <p class="text-muted">統合キャラクターシートによる一貫性のあるビジュアル</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-item text-center">
+                    <div class="feature-icon text-info mb-3">
+                        <i class="fas fa-mobile-alt fa-2x"></i>
+                    </div>
+                    <h5>LP最適化設計</h5>
+                    <p class="text-muted">5秒ループ・モバイル最適・配置戦略を考慮</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2025 kamuicode Workflows. MIT License.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Base Project: <a href="https://github.com/khomma/kamuicode-workflow" class="text-light">kamuicode Workflows</a> by Kenta Homma</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videos = document.querySelectorAll('.phone-video');
+            const indicators = document.querySelectorAll('.indicator');
+            const listItems = document.querySelectorAll('.video-list-item');
+            let currentVideo = 0;
+            
+            // 動画切り替え関数
+            function switchVideo(index) {
+                // 全ての動画を非アクティブにする
+                videos.forEach(video => {
+                    video.classList.remove('active');
+                    video.pause();
+                });
+                
+                // 全てのインジケーターとリストアイテムを非アクティブにする
+                indicators.forEach(indicator => indicator.classList.remove('active'));
+                listItems.forEach(item => item.classList.remove('active'));
+                
+                // 選択された動画をアクティブにする
+                videos[index].classList.add('active');
+                videos[index].play();
+                indicators[index].classList.add('active');
+                listItems[index].classList.add('active');
+                
+                currentVideo = index;
+            }
+            
+            // インジケータークリック
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    switchVideo(index);
+                });
+            });
+            
+            // リストアイテムクリック
+            listItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    switchVideo(index);
+                });
+            });
+            
+            // スマートフォンフレーム内でのスワイプ対応（タッチイベント）
+            const phoneScreen = document.querySelector('.phone-screen');
+            let startY = 0;
+            let endY = 0;
+            
+            phoneScreen.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+            });
+            
+            phoneScreen.addEventListener('touchend', (e) => {
+                endY = e.changedTouches[0].clientY;
+                const diff = startY - endY;
+                
+                if (Math.abs(diff) > 50) { // 50px以上のスワイプで反応
+                    if (diff > 0) {
+                        // 上スワイプ - 次の動画
+                        const nextIndex = (currentVideo + 1) % videos.length;
+                        switchVideo(nextIndex);
+                    } else {
+                        // 下スワイプ - 前の動画
+                        const prevIndex = (currentVideo - 1 + videos.length) % videos.length;
+                        switchVideo(prevIndex);
+                    }
+                }
+            });
+            
+            // マウスホイールでの動画切り替え
+            phoneScreen.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                
+                if (e.deltaY > 0) {
+                    // 下スクロール - 次の動画
+                    const nextIndex = (currentVideo + 1) % videos.length;
+                    switchVideo(nextIndex);
+                } else {
+                    // 上スクロール - 前の動画
+                    const prevIndex = (currentVideo - 1 + videos.length) % videos.length;
+                    switchVideo(prevIndex);
+                }
+            });
+            
+            // 初期化：最初の動画を再生開始
+            videos[0].play();
+        });
+    </script>
+</body>
+</html>
